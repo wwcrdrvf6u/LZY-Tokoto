@@ -29,6 +29,7 @@ jobs:
 
       - name: Get new images and update README
         run: |
+          ls
           python3 << 'EOF'
           import os
 

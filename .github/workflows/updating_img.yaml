@@ -31,14 +31,17 @@ jobs:
         run: |
           ls
           python3 << 'EOF'
-          import os
+          import os,sys
 
           TEMPLATE = "# LZY-TOKOTO\n {}"
           IMGTPLT = "![{}]({}) \n\n {} \n----------\n"
-
-          imgs = [i for i in os.listdir("/images/") if any(s in i for s in ('jpg','jpeg','png','gif'))]
-          img_links = [IMGTPLT.format(i,f'/images/{i}',i) for i in imgs]
-
+          
+          try:
+              imgs = [i for i in os.listdir("./images/") if any(s in i for s in ('jpg','jpeg','png','gif'))]
+              img_links = [IMGTPLT.format(i,f'./images/{i}',i) for i in imgs]
+          except FileNotFoundError as e:
+              raise RuntimeError(f'{os.getcwd()=}{sys.system('ls')=}') from e
+              
           content = TEMPLATE.format(''.join(img_links))
 
           with open('README.md','w',encoding='utf8') as f:

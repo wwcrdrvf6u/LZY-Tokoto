@@ -1,0 +1,54 @@
+name: Generate img.txt
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # 手动触发
+
+jobs:
+  generate-img-txt:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Find all image files in 'images' folder and generate img.txt
+      run: |
+        # 检查 images 文件夹是否存在
+        if [ -d "./images" ]; then
+          # 查找 ./images 目录下的所有常见图片格式
+          # 格式包括: png, webp, jpg, jpeg, gif, bmp, svg, tiff, tif, ico
+          find ./images -type f \( \
+            -name "*.png" -o \
+            -name "*.webp" -o \
+            -name "*.jpg" -o \
+            -name "*.jpeg" -o \
+            -name "*.gif" -o \
+            -name "*.bmp" -o \
+            -name "*.svg" -o \
+            -name "*.tiff" -o \
+            -name "*.tif" -o \
+            -name "*.ico" \
+          \) | sed 's|^\./||' > img.txt
+          
+          echo "Found $(wc -l < img.txt) image files."
+        else
+          echo "Warning: 'images' directory not found. Creating empty img.txt."
+          touch img.txt
+        fi
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add img.txt
+        git commit -m 'Auto-generate img.txt with all image paths'
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
